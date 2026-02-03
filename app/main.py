@@ -195,11 +195,18 @@ def _submit_summary_batch(
     payload,
     batch_dir,
     completion_window,
+    summary_prompt,
     state,
     state_path,
 ):
     summary_meta = submit_summary_batch(
-        api_base, api_key, model, payload, batch_dir, completion_window
+        api_base,
+        api_key,
+        model,
+        payload,
+        batch_dir,
+        completion_window,
+        prompt_override=summary_prompt,
     )
     state["pending_summary_batch"] = {
         "batch_id": summary_meta["batch_id"],
@@ -229,6 +236,8 @@ def main() -> None:
     api_base = cfg["openai"]["api_base"]
     model = cfg["openai"]["model"]
     completion_window = cfg["openai"]["completion_window"]
+    classify_prompt = str(cfg["openai"].get("classify_prompt", "") or "")
+    summary_prompt = str(cfg["openai"].get("summary_prompt", "") or "")
 
     provider_name = str(cfg.get("provider", "gmail")).lower()
     if provider_name == "outlook":
@@ -345,6 +354,7 @@ def main() -> None:
                                 payload,
                                 batch_dir,
                                 completion_window,
+                                summary_prompt,
                                 state,
                                 state_path,
                             )
@@ -424,7 +434,7 @@ def main() -> None:
 
     batch_dir.mkdir(parents=True, exist_ok=True)
     jsonl_path = batch_dir / f"batch-input-{int(time.time())}.jsonl"
-    build_batch_jsonl(emails, model, jsonl_path)
+    build_batch_jsonl(emails, model, jsonl_path, prompt_override=classify_prompt)
 
     input_file_id = upload_batch_file(api_base, api_key, jsonl_path)
     batch_id = create_batch(api_base, api_key, input_file_id, "/v1/chat/completions", completion_window)
@@ -481,6 +491,7 @@ def main() -> None:
                             payload,
                             batch_dir,
                             completion_window,
+                            summary_prompt,
                             state,
                             state_path,
                         )

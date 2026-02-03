@@ -61,14 +61,19 @@ def download_file(api_base: str, api_key: str, file_id: str) -> str:
     return resp.text
 
 
-def build_batch_jsonl(emails: List[EmailItem], model: str, out_path: Path) -> None:
+def build_batch_jsonl(
+    emails: List[EmailItem],
+    model: str,
+    out_path: Path,
+    prompt_override: str = "",
+) -> None:
     with out_path.open("w", encoding="utf-8") as f:
         for email in emails:
             body = {
                 "model": model,
                 "messages": [
                     {"role": "system", "content": "You must output only valid JSON."},
-                    {"role": "user", "content": build_prompt(email)},
+                    {"role": "user", "content": build_prompt(email, prompt_override=prompt_override)},
                 ],
                 "response_format": {"type": "json_object"},
                 "temperature": 0.2,
@@ -125,13 +130,18 @@ def parse_batch_output(text: str) -> Dict[str, Decision]:
     return results
 
 
-def build_summary_batch_jsonl(payload: List[Dict[str, Any]], model: str, out_path: Path) -> str:
+def build_summary_batch_jsonl(
+    payload: List[Dict[str, Any]],
+    model: str,
+    out_path: Path,
+    prompt_override: str = "",
+) -> str:
     custom_id = f"summary-{int(time.time())}"
     body = {
         "model": model,
         "messages": [
             {"role": "system", "content": "你擅长写结构化日报。"},
-            {"role": "user", "content": build_summary_prompt(payload)},
+            {"role": "user", "content": build_summary_prompt(payload, prompt_override=prompt_override)},
         ],
         "temperature": 0.2,
     }
@@ -171,10 +181,11 @@ def submit_summary_batch(
     payload: List[Dict[str, Any]],
     batch_dir: Path,
     completion_window: str,
+    prompt_override: str = "",
 ) -> Dict[str, str]:
     batch_dir.mkdir(parents=True, exist_ok=True)
     jsonl_path = batch_dir / f"summary-input-{int(time.time())}.jsonl"
-    custom_id = build_summary_batch_jsonl(payload, model, jsonl_path)
+    custom_id = build_summary_batch_jsonl(payload, model, jsonl_path, prompt_override=prompt_override)
     input_file_id = upload_batch_file(api_base, api_key, jsonl_path)
     batch_id = create_batch(api_base, api_key, input_file_id, "/v1/chat/completions", completion_window)
     return {"batch_id": batch_id, "custom_id": custom_id}

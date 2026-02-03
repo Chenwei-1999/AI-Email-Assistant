@@ -11,6 +11,8 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "model": "gpt-4o-mini",
         "completion_window": "24h",
         "timeout_sec": 60,
+        "classify_prompt": "",
+        "summary_prompt": "",
     },
     "gmail": {
         "profile_dir": ".gmail_profile",

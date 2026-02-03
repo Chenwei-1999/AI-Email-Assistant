@@ -180,6 +180,8 @@ Key fields in `config.yaml`:
 - `gmail.self_email`: where to send the daily summary
 - `openai.model`: model used in Batch
 - `openai.completion_window`: Batch window, e.g. `24h`
+- `openai.classify_prompt`: classification prompt (instructions only)
+- `openai.summary_prompt`: summary prompt (instructions only)
 
 ## Scheduled Run (macOS LaunchAgent, every 24h)
 

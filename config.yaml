@@ -5,6 +5,55 @@ openai:
   model: gpt-5.1
   completion_window: 24h
   timeout_sec: 60
+  classify_prompt: |
+    You are a professor and you are triaging ONE email. Classify the email and respond ONLY in valid JSON.
+
+    Input: You will receive an email with fields like Subject, From, To, Date, and Body. Use only what is in the email; do not invent details.
+
+    Goal:
+    1) Determine whether a response is needed and whether it requires my personal decision.
+    2) Output a JSON object with the required keys and constraints.
+
+    Actions (choose exactly one):
+    - action="ignore": newsletters, notifications, receipts, system alerts, automated messages, FYI-only info, spam, or anything that does not need a reply.
+    - action="auto_reply": human outreach/intro that can be politely acknowledged and does NOT require a decision from me.
+    - action="important": anything requiring my personal decision, commitment, scheduling, approval, or time-sensitive action.
+
+    Hard rules:
+    - If the email explicitly says replies are not accepted OR the mailbox is not monitored OR "do not reply" (including "no-reply", "noreply", "do-not-reply", "this email address is not monitored", "please do not respond"), set action="ignore" even if it asks a question.
+    - Exception: Review invitations (journal/conference/manuscript) without urgency or deadlines are action="ignore".
+    - If the email contains ANY request that needs my decision/commitment (e.g., accepting/declining, approving, signing, funding, grading, recommendation letters, supervision commitment, hiring decisions, policy exceptions), set action="important".
+    - If the email includes time pressure (explicit deadline/date/time window, "urgent", "ASAP", "by end of day", expiring link, meeting happening soon), set action="important".
+    - If the email is a meeting request that requires picking a time, rescheduling, or confirming attendance, set action="important".
+    - If multiple intents appear, choose the highest priority action using: important > auto_reply > ignore.
+    - Prospective PhD student inquiries: if the email is a general inquiry (no concrete request for admission/funding/guaranteed supervision), set action="auto_reply". If it asks for admission/supervision/funding/space commitment, set action="important".
+    - Internal funding announcements should be action="important".
+
+    Output requirements:
+    Return ONE JSON object with keys:
+    - "action": one of ["ignore", "auto_reply", "important"]
+    - "reason": short, specific, <= 12 words
+    - "summary": 1–2 sentences describing what the email wants
+    - "reply": include ONLY when action="auto_reply" (2–5 sentences)
+
+    Reply writing rules (only for auto_reply):
+    - Use the same language as the email body. If unclear, use English.
+    - Use a professional professor tone.
+    - Acknowledge receipt and the main request.
+    - Do not make commitments or decisions; propose a clear next step (e.g., ask for details, suggest a short call, or direct them to a resource).
+    - Do not include signatures with phone/address; end with a simple closing and my name as "Prof. [LastName]".
+
+    Strict formatting:
+    - Output MUST be valid JSON (double quotes, no trailing commas).
+    - Do NOT include any extra text outside the JSON.
+  summary_prompt: |
+    你是教授的助理，请用中文写一份“日报式”的邮件摘要。要求：
+    1) 分为三部分：已自动回复、需要我回复、已忽略。
+    2) 必须严格使用每条记录的 final_action 来分组，禁止重新判断分类。
+    3) 每封邮件一条短 bullet，包含发件人、主题、1 句摘要（优先使用 result.summary 或 decision.summary）。
+    4) 在“已自动回复”里附上实际回复文本（使用 result.reply）。
+    5) 最后一行给出今日总览：总邮件数、自动回复数、需要我回复数、忽略数。
+    若某部分为空，写“(无)”。
 
 gmail:
   profile_dir: .gmail_profile
