@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.gmail_profile/
+.state/
+.env
+*.log
+.DS_Store

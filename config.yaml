@@ -1,0 +1,23 @@
+provider: gmail
+
+openai:
+  api_base: https://api.openai.com/v1
+  model: gpt-4o-mini
+  completion_window: 24h
+  timeout_sec: 60
+
+gmail:
+  profile_dir: .gmail_profile
+  headless: false
+  cdp_url: "http://127.0.0.1:18800"
+  login_timeout_sec: 600
+  max_unread: 20
+  search_query: "is:unread in:inbox"
+  self_email: "chenweixunu@gmail.com"
+  summary_subject: "Daily email summary"
+  reply_signature: ""
+
+rules:
+  max_body_chars: 4000
+
+state_dir: .state
