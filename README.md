@@ -78,6 +78,51 @@ provider: outlook
 
 Make sure you are already logged in at `outlook.office.com` or `outlook.live.com` in the same browser profile.
 
+## Multiple Gmail Accounts
+
+Recommended approach: use **separate browser profiles + separate config/state** per account. This avoids Gmail account switching and keeps batches isolated.
+
+1. Create per-account configs:
+
+```bash
+cp config.yaml config_gmail1.yaml
+cp config.yaml config_gmail2.yaml
+```
+
+2. Edit each config:
+
+```yaml
+# config_gmail1.yaml
+provider: gmail
+gmail:
+  profile_dir: .gmail_profile_gmail1
+  self_email: "you1@gmail.com"
+state_dir: .state_gmail1
+```
+
+```yaml
+# config_gmail2.yaml
+provider: gmail
+gmail:
+  profile_dir: .gmail_profile_gmail2
+  self_email: "you2@gmail.com"
+state_dir: .state_gmail2
+```
+
+3. Login once per account:
+
+```bash
+python gmail_batch_agent.py --config config_gmail1.yaml --login
+python gmail_batch_agent.py --config config_gmail2.yaml --login
+```
+
+4. Run each account:
+
+```bash
+python gmail_batch_agent.py --config config_gmail1.yaml
+python gmail_batch_agent.py --config config_gmail2.yaml
+```
+
 ## CDP Mode (Reuse Existing Chrome)
 
 If you already have a logged-in Chrome instance exposed by CDP (for OpenClaw, typically `http://127.0.0.1:18800`), set:
