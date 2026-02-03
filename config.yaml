@@ -2,7 +2,7 @@ provider: gmail
 
 openai:
   api_base: https://api.openai.com/v1
-  model: gpt-4o-mini
+  model: gpt-5.1
   completion_window: 24h
   timeout_sec: 60
 

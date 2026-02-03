@@ -67,7 +67,7 @@ def build_batch_jsonl(emails: List[EmailItem], model: str, out_path: Path) -> No
             body = {
                 "model": model,
                 "messages": [
-                    {"role": "system", "content": "You are a professor. Output JSON."},
+                    {"role": "system", "content": "You must output only valid JSON."},
                     {"role": "user", "content": build_prompt(email)},
                 ],
                 "response_format": {"type": "json_object"},

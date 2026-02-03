@@ -143,6 +143,7 @@ def build_summary_payload(
     for email in emails:
         decision = decisions.get(email.custom_id)
         result = by_custom.get(email.custom_id, {})
+        final_action = result.get("action") or (decision.action if decision else "important")
         payload.append(
             {
                 "sender": email.sender,
@@ -151,6 +152,7 @@ def build_summary_payload(
                 "body": email.body,
                 "decision": decision.__dict__ if decision else {},
                 "result": result,
+                "final_action": final_action,
             }
         )
     return payload
