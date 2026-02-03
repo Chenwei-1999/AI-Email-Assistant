@@ -104,6 +104,27 @@ The agent will attach to that browser instead of launching a new one.
 - Config: `config.yaml`
 - State + batches: `.state/`
 
+## Flowchart
+
+```mermaid
+flowchart TD
+  A[Collect unread emails] --> B[OpenAI Batch: classify + draft replies]
+  B --> C{Batch completed?}
+  C -- No --> D[Wait / next run]
+  C -- Yes --> E[Apply actions in web UI]
+  E --> F[OpenAI Batch: daily summary]
+  F --> G[Send summary to self]
+```
+
+## Screenshots
+
+Place your screenshots in `docs/` and update the links below.
+
+- Gmail Inbox (unread collected): `docs/gmail_inbox.png`
+- Outlook Inbox (unread collected): `docs/outlook_inbox.png`
+- Auto-reply drafted and sent: `docs/reply_sent.png`
+- Daily summary email: `docs/daily_summary.png`
+
 ## Config Reference
 
 Key fields in `config.yaml`:
